@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@source "./**/*.{ts,tsx}";
+
+@layer base {
+  html { font-size: 16px; }
+  body { margin: 0; background: #f6efe6; color: #3d2428; font-family: system-ui, sans-serif; }
+  button:not(:disabled) { cursor: pointer; }
+  button:focus-visible, textarea:focus-visible { outline: 3px solid #f07a1a; outline-offset: 3px; }
+}
