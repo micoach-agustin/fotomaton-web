@@ -105,6 +105,6 @@ npm run build
 
 La comprobación pública busca archivos ajenos a la extracción, endpoints privados conocidos y patrones habituales de credenciales. No sustituye la revisión de cualquier archivo nuevo que añadas. GitHub Actions ejecuta estas comprobaciones al subir cambios.
 
-Los accesorios se colocan en posiciones fijas en modo vertical; no hay detección facial. La compatibilidad de grabación, audio y guardado depende del navegador. Si la composición de un vídeo no termina a tiempo o el dispositivo no puede procesarla, se conserva el vídeo original; la vista previa muestra el marco, pero ese PNG no estará incrustado en la descarga de ese vídeo.
+Los accesorios se colocan en posiciones fijas tanto en vertical como en horizontal; no hay detección facial. La compatibilidad de grabación, audio y guardado depende del navegador. Si la composición de un vídeo no termina a tiempo o el dispositivo no puede procesarla, se conserva el vídeo original; la vista previa muestra el marco, pero ese PNG no estará incrustado en la descarga de ese vídeo.
 
 Código y recursos incluidos bajo [licencia MIT](LICENSE). Puedes descargarlos, modificarlos y usarlos en tus propios websites.

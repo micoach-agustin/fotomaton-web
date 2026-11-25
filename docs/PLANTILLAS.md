@@ -14,7 +14,7 @@ Los nombres y fechas de los marcos originales están dibujados dentro del PNG. S
 
 [`src/photobooth/props.ts`](../src/photobooth/props.ts) define 12 opciones a partir de 11 imágenes, incluyendo una combinación de los dos carteles. `faceX`/`faceY` colocan el punto de apoyo en el marco, `anchorX`/`anchorY` indican ese punto dentro del PNG y `width` controla su tamaño. Los valores son proporciones; no son coordenadas de un detector facial.
 
-Los accesorios funcionan en vertical. La persona debe colocarse dentro del visor. La composición guarda primero la cámara, después los accesorios y finalmente el marco; los controles de interfaz no aparecen en la foto.
+Los accesorios funcionan en vertical y en horizontal. En horizontal se conserva su escala dentro de un área central de proporción 9:16, para que las lentes y los demás accesorios no se estiren a todo el ancho. El botón Accesorios activa las lentes; las flechas o un deslizamiento cambian de accesorio. Al girar el dispositivo se mantiene la selección. La persona debe colocarse dentro del visor. La composición guarda primero la cámara, después los accesorios y finalmente el marco; los controles de interfaz no aparecen en la foto.
 
 ## Controles ilustrados
 

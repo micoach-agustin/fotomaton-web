@@ -5,10 +5,10 @@ export type PropPlace = {
   /** Punto del PNG (0–1) que se apoya en la cara. */
   anchorX: number;
   anchorY: number;
-  /** Dónde cae ese punto dentro del marco vertical (0–1). */
+  /** Dónde cae ese punto dentro del área de accesorios (0–1). */
   faceX: number;
   faceY: number;
-  /** Ancho del PNG respecto al ancho del marco. */
+  /** Ancho del PNG respecto al ancho del área de accesorios. */
   width: number;
 };
 
@@ -22,7 +22,7 @@ export type BodaProp = PropPlace & {
 };
 
 /**
- * Ancla fija en el hueco vertical: ojos en el tercio alto.
+ * Ancla fija: ojos en el tercio alto. En horizontal se centra el área vertical.
  * La persona se acerca o se aleja para encajar. Sin detector.
  * El marco floral sigue encima y tapa solo el borde.
  * Los carteles son accesorios: se dibujan encima de la persona.
@@ -180,10 +180,14 @@ export function propPieces(prop: BodaProp): PropPlace[] {
 }
 
 export function propBox(prop: PropPlace, frameWidth: number, frameHeight: number, sourceWidth = 700, sourceHeight = 500) {
-  const width = frameWidth * prop.width;
+  // En horizontal, conservar la escala de una cara en vez de estirar el
+  // accesorio a todo el ancho. Visor y exportación usan la misma geometría.
+  const areaWidth = frameWidth > frameHeight ? frameHeight * (9 / 16) : frameWidth;
+  const left = (frameWidth - areaWidth) / 2;
+  const width = areaWidth * prop.width;
   const height = sourceWidth > 0 ? width * (sourceHeight / sourceWidth) : width;
   return {
-    x: frameWidth * prop.faceX - width * prop.anchorX,
+    x: left + areaWidth * prop.faceX - width * prop.anchorX,
     y: frameHeight * prop.faceY - height * prop.anchorY,
     width,
     height,

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { orderedFrames } from "./frames";
-import { propSources } from "./props";
-import { coverRect } from "./frame-paint";
+import { propBox, propById, propSources } from "./props";
+import { coverRect, paintProp } from "./frame-paint";
 
 describe("templates and camera composition", () => {
   it("includes both orientations for every frame and all accessory PNGs", () => {
@@ -25,5 +25,28 @@ describe("templates and camera composition", () => {
     expect(rect.width / rect.height).toBeCloseTo(1920 / 1080);
     expect(rect.x).toBeLessThan(0);
     expect(rect.y).toBe(0);
+  });
+
+  it("keeps glasses at the same face scale when rotating a frame of the same height", () => {
+    const glasses = propById("lentes")!;
+    const portrait = propBox(glasses, 360, 640, 700, 500);
+    const landscape = propBox(glasses, 1137, 640, 700, 500);
+    expect(portrait.width).toBeCloseTo(360 * glasses.width);
+    expect(landscape.width).toBeCloseTo(portrait.width);
+    expect(landscape.height).toBeCloseTo(portrait.height);
+    expect(landscape.x + landscape.width * glasses.anchorX).toBeCloseTo(1137 / 2);
+    expect(landscape.y).toBeCloseTo(portrait.y);
+  });
+
+  it("uses matching accessory coordinates in the preview and exported landscape photo", () => {
+    const glasses = propById("lentes")!;
+    const preview = propBox(glasses, 960, 540, 700, 500);
+    const image = { naturalWidth: 700, naturalHeight: 500 } as HTMLImageElement;
+    const calls: unknown[][] = [];
+    const context = { drawImage: (...args: unknown[]) => calls.push(args) } as unknown as CanvasRenderingContext2D;
+    paintProp(context, { prop: glasses, image }, 3840, 2160);
+    expect(calls).toHaveLength(1);
+    expect(calls[0][0]).toBe(image);
+    expect(calls[0].slice(1)).toEqual([preview.x, preview.y, preview.width, preview.height].map((value) => value * 4));
   });
 });

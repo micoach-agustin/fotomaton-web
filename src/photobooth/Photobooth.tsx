@@ -354,7 +354,7 @@ export default function Photobooth() {
   }
 
   function propsActive() {
-    return propsOpenRef.current && portraitRef.current;
+    return propsOpenRef.current;
   }
 
   function commit(direction: 1 | -1) {
@@ -434,7 +434,7 @@ export default function Photobooth() {
   }
 
   function activeStamp(): FrameStamp | null {
-    if (!portraitRef.current || !propsOpenRef.current) return null;
+    if (!propsOpenRef.current) return null;
     const prop = propById(propIdRef.current);
     if (!prop) return null;
     const image = imagesRef.current[prop.src];
@@ -444,18 +444,13 @@ export default function Photobooth() {
   }
 
   function toggleProps() {
-    if (recordingRef.current || countdownRef.current) return;
-    setPropsOpen((open) => {
-      if (open) {
-        propIdRef.current = "";
-        setPropId("");
-        return false;
-      }
-      const id = BODA_PROPS[0]?.id || "";
-      propIdRef.current = id;
-      setPropId(id);
-      return true;
-    });
+    if (blocked()) return;
+    const open = !propsOpenRef.current;
+    const id = open ? BODA_PROPS[0]?.id || "" : "";
+    propsOpenRef.current = open;
+    propIdRef.current = id;
+    setPropsOpen(open);
+    setPropId(id);
   }
 
   async function present(blob: Blob, filename: string, kind: "foto" | "video", framed: boolean) {
@@ -841,7 +836,7 @@ export default function Photobooth() {
   const panel = [previous, current, next];
   const wide = !portrait;
   const shutterPx = wide ? 128 : 154;
-  const filterPx = wide ? 40 : 56;
+  const filterPx = wide ? 44 : 56;
   const cameraOpen = showPhotoCamera || showMessageCamera;
   const liveCover = sourceSize.width > 0 && stage.width > 0 ? coverRect(stage.width, stage.height, sourceSize.width, sourceSize.height) : null;
   const shell = showPhotoCamera
@@ -917,7 +912,7 @@ export default function Photobooth() {
             <div
               data-frame={showPhotoCamera ? current.id : "testimonio"}
               data-frame-index={showPhotoCamera ? index : 0}
-              data-props={showPhotoCamera && portrait && propsOpen ? propId || "none" : "off"}
+              data-props={showPhotoCamera && propsOpen ? propId || "none" : "off"}
               data-countdown={countdown ?? ""}
               role="group"
               aria-label={showPhotoCamera ? "Marcos de la boda" : "Testimonio"}
@@ -958,7 +953,7 @@ export default function Photobooth() {
                   if (video.videoWidth) setSourceSize({ width: video.videoWidth, height: video.videoHeight });
                 }}
               />
-              {showPhotoCamera && portrait && propsOpen && !shot ? <PropOverlay propId={propId} width={stage.width} height={stage.height} images={imagesRef.current} /> : null}
+              {showPhotoCamera && propsOpen && !shot ? <PropOverlay propId={propId} width={stage.width} height={stage.height} images={imagesRef.current} /> : null}
               {showPhotoCamera && shot ? (
                 shot.kind === "foto" ? (
                   <img src={shot.url} alt="Foto con el marco" className="absolute inset-0 z-10 h-full w-full max-w-none object-contain" style={{ objectFit: "contain" }} />
@@ -988,10 +983,10 @@ export default function Photobooth() {
               ) : null}
               {showPhotoCamera && !shot ? (
                 <>
-                  <button type="button" aria-label={propsOpen && portrait ? "Accesorio anterior" : "Marco anterior"} disabled={recording || countdown !== null} onPointerDown={(event) => event.stopPropagation()} onClick={() => nudge(-1)} className={`absolute top-1/2 z-20 grid -translate-y-1/2 place-items-center rounded-full bg-white/70 text-[#6b2433] shadow-sm disabled:opacity-40 ${wide ? "left-1 h-6 w-6" : "left-2 h-10 w-10"}`}>
+                  <button type="button" aria-label={propsOpen ? "Accesorio anterior" : "Marco anterior"} disabled={recording || countdown !== null} onPointerDown={(event) => event.stopPropagation()} onClick={() => nudge(-1)} className={`absolute top-1/2 z-20 grid -translate-y-1/2 place-items-center rounded-full bg-white/70 text-[#6b2433] shadow-sm disabled:opacity-40 ${wide ? "left-1 h-6 w-6" : "left-2 h-10 w-10"}`}>
                     <Chevron direction="left" compact={wide} />
                   </button>
-                  <button type="button" aria-label={propsOpen && portrait ? "Accesorio siguiente" : "Marco siguiente"} disabled={recording || countdown !== null} onPointerDown={(event) => event.stopPropagation()} onClick={() => nudge(1)} className={`absolute top-1/2 z-20 grid -translate-y-1/2 place-items-center rounded-full bg-white/70 text-[#6b2433] shadow-sm disabled:opacity-40 ${wide ? "right-1 h-6 w-6" : "right-2 h-10 w-10"}`}>
+                  <button type="button" aria-label={propsOpen ? "Accesorio siguiente" : "Marco siguiente"} disabled={recording || countdown !== null} onPointerDown={(event) => event.stopPropagation()} onClick={() => nudge(1)} className={`absolute top-1/2 z-20 grid -translate-y-1/2 place-items-center rounded-full bg-white/70 text-[#6b2433] shadow-sm disabled:opacity-40 ${wide ? "right-1 h-6 w-6" : "right-2 h-10 w-10"}`}>
                     <Chevron direction="right" compact={wide} />
                   </button>
                 </>
@@ -1068,7 +1063,7 @@ export default function Photobooth() {
             </div>
           ) : null}
           <p className={wide ? "text-[10px] font-medium text-[#6b2433]" : "text-xs font-medium text-[#6b2433]"}>
-            <span className={wide ? "rounded-full bg-white/75 px-1.5 py-0" : "rounded-full bg-white/80 px-2 py-0.5"}>{shot ? "Así quedó" : `${index + 1} / ${frames.length} · ${current.label}${!wide && propsOpen ? ` · ${propById(propId)?.label || "Sin nada"}` : ""}`}</span>
+            <span className={wide ? "rounded-full bg-white/75 px-1.5 py-0" : "rounded-full bg-white/80 px-2 py-0.5"}>{shot ? "Así quedó" : `${index + 1} / ${frames.length} · ${current.label}${propsOpen ? ` · ${propById(propId)?.label || "Sin nada"}` : ""}`}</span>
           </p>
           {cameraError ? <p className={wide ? "text-[10px] text-[#8c3a4a]" : "text-xs text-[#8c3a4a]"}><span className="rounded-full bg-white/80 px-2 py-0.5">{cameraError}</span></p> : null}
           {fallaTag ? <p className="text-[11px] leading-4 text-[#8c3a4a]/80">{fallaTag}</p> : null}
@@ -1164,10 +1159,11 @@ function PropOverlay({ propId, width, height, images }: { propId: string; width:
     return (
       <img
         key={piece.src}
+        data-accessory={prop.id}
         src={piece.src}
         alt=""
         draggable={false}
-        className="pointer-events-none absolute"
+        className="pointer-events-none absolute z-[1]"
         style={{ left: box.x, top: box.y, width: box.width, height: box.height }}
       />
     );
